@@ -2,10 +2,12 @@ package com.project.GreApp;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
@@ -128,7 +130,7 @@ public class AppService {
 	    });
 	}
 
-	public ResponseEntity<List<Word>> showAllWords() {
+	public ResponseEntity<List<Word>> getAllWords() {
 		return new ResponseEntity<>(appDao.findAll(),HttpStatus.OK);
 	}
 
@@ -141,5 +143,20 @@ public class AppService {
 		return new ResponseEntity<List<String>>(HttpStatus.CREATED);
 	}
 
+	public ResponseEntity<Optional<Word>> getWordbyId(Integer id) {
+		try {
+			return new ResponseEntity<>(appDao.findById(id),HttpStatus.FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	public ResponseEntity<Optional<Word>> getWordbyName(String word) {
+		try {
+			return new ResponseEntity<>(appDao.findByWord(word),HttpStatus.FOUND);
+		} catch (Exception e) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
 	
 }

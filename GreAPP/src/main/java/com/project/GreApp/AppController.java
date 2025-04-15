@@ -2,10 +2,12 @@ package com.project.GreApp;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -36,8 +38,22 @@ public class AppController {
 	    return appService.addWordAutomatically(question);
 	}
 	
-	@GetMapping("allWords")
-	public ResponseEntity<List<Word>> showAllWords(){
-		return appService.showAllWords();
+	@GetMapping("get/allWords")
+	public ResponseEntity<List<Word>> getAllWords(){
+		return appService.getAllWords();
 	}
+	
+	@GetMapping("get/word/id/{id}")
+	public ResponseEntity<Optional<Word>> getWordbyId(@PathVariable Integer id){
+		return appService.getWordbyId(id);
+	}
+	
+	@GetMapping("get/word/{word}")
+	public ResponseEntity<Optional<Word>> getWordbyName(@PathVariable String word){
+		return appService.getWordbyName(word);
+	}
+	
+//	@PostMapping("create")
+//	public ResponseEntity<List<Word>>
+
 }

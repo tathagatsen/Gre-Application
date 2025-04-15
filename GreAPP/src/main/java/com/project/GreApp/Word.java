@@ -39,5 +39,15 @@ public class Word {
 	public void setExample(String example) {
 		this.example = example;
 	}
+	public Word(Integer id, String word, String definition, String example) {
+		super();
+		this.id = id;
+		this.word = word;
+		this.definition = definition;
+		this.example = example;
+	}
+	public Word() {
+		super();
+	}
 	
 }
