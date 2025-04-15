@@ -1,0 +1,145 @@
+package com.project.GreApp;
+
+import java.util.List;
+import java.util.Map;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Service;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.reactive.function.client.WebClient;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import reactor.core.publisher.Mono;
+@Service
+public class AppService {
+	
+	@Autowired
+	AppDao appDao;
+	
+	@Value("${gemini.api.url}")
+	private String geminiApiUrl;
+	@Value("${gemini.api.key}")
+	private String geminiApiKey;
+	
+	private final WebClient webClient;
+	
+	public AppService(WebClient.Builder webClient) {
+		super();
+		this.webClient = webClient.build();
+	}
+
+	public ResponseEntity<String> addWordManually(Word word) {
+		appDao.save(word);
+		return new ResponseEntity<>("success",HttpStatus.CREATED);
+	}
+
+	public ResponseEntity<Mono<String>> addWordAutomatically(String question) {
+	    Map<String, Object> requestBody = Map.of(
+	        "contents", new Object[] {
+	            Map.of("parts", new Object[] {
+	                Map.of("text", question)
+	            })
+	        }
+	    );
+
+	    Mono<String> response = webClient.post()
+	        .uri(geminiApiUrl + geminiApiKey)
+	        .header("Content-Type", "application/json")
+	        .bodyValue(requestBody)
+	        .retrieve()
+	        .bodyToMono(String.class);
+
+	    Mono<String> result = handleGeminiResponse(response)
+	        .flatMap(word -> {
+	            appDao.save(word); // Save parsed Word object
+	            return Mono.just("success");
+	        })
+	        .onErrorResume(e -> {
+	            e.printStackTrace();
+	            return Mono.just("error: " + e.getMessage());
+	        });
+
+	    return ResponseEntity.status(HttpStatus.CREATED).body(result);
+	}
+
+	
+	public Mono<Word> handleGeminiResponse(Mono<String> responseMono) {
+	    return responseMono.flatMap(response -> {
+	        try {
+	            ObjectMapper mapper = new ObjectMapper();
+	            JsonNode rootNode = mapper.readTree(response);
+	            JsonNode candidates = rootNode.path("candidates");
+
+	            // Safety checks
+	            if (!candidates.isArray() || candidates.size() == 0) {
+	                return Mono.error(new RuntimeException("No candidates found in response"));
+	            }
+
+	            JsonNode contentNode = candidates.get(0).path("content");
+	            JsonNode partsNode = contentNode.path("parts");
+
+	            if (!partsNode.isArray() || partsNode.size() == 0) {
+	                return Mono.error(new RuntimeException("No parts found in content"));
+	            }
+
+	            JsonNode textNode = partsNode.get(0).path("text");
+	            String rawText = textNode.asText();
+
+	            if (rawText == null || rawText.isEmpty()) {
+	                return Mono.error(new RuntimeException("No text found in response"));
+	            }
+
+	            String cleanedJson = rawText.replaceAll("(?s)```json|```", "").trim();
+	            JsonNode extractedJson = mapper.readTree(cleanedJson);
+	         // If root is an array, take the first element
+	            if (extractedJson.isArray() && extractedJson.size() > 0) {
+	                extractedJson = extractedJson.get(0);
+	            } else {
+	                return Mono.error(new RuntimeException("Expected JSON array but got something else or empty array"));
+	            }
+
+
+	            System.out.println("Extracted JSON:\n" + extractedJson.toPrettyString());
+
+	            Word w = new Word();
+	            String word = extractedJson.path("word").asText();
+	            if (word == null || word.isEmpty()) {
+	                word = extractedJson.path("Word").asText();
+	            }
+	            w.setWord(word);
+	            
+	            JsonNode definitions = extractedJson.path("definitions");
+	            if (!definitions.isArray() || definitions.size() == 0) {
+	                return Mono.error(new RuntimeException("No definitions found"));
+	            }
+
+	            JsonNode firstDef = definitions.get(0);
+	            w.setDefinition(firstDef.path("definition").asText());
+	            w.setExample(extractedJson.path("definitions").get(0).path("example").asText());
+
+	            return Mono.just(w);
+	        } catch (Exception e) {
+	            e.printStackTrace(); // good for debugging
+	            return Mono.error(new RuntimeException("Failed to parse Gemini response: " + e.getMessage()));
+	        }
+	    });
+	}
+
+	public ResponseEntity<List<Word>> showAllWords() {
+		return new ResponseEntity<>(appDao.findAll(),HttpStatus.OK);
+	}
+
+	public ResponseEntity<List<String>> addMultipleWords(List<Word> words) {
+		for(Word w:words) {
+			if (!appDao.existsByWord(w.getWord())) {
+		        appDao.save(w);
+		    } 
+		}
+		return new ResponseEntity<List<String>>(HttpStatus.CREATED);
+	}
+
+	
+}
