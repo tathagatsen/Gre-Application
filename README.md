@@ -62,23 +62,8 @@ Handles:
 
 ### 📘 GreApp Service (Port `8080`)
 
-📂 Project Structure
-Copy
-Edit
-gre-app/
-  └── controller/
-  └── service/
-  └── model/
-  └── dao/
-  └── application.yml
-
-gre-quiz-service/
-  └── controller/
-  └── service/
-  └── feign/
-  └── model/
-  └── dao/
-  └── application.yml
+📁 Project Structure
+<pre><code> gre-vocab-app/ ├── gre-app/ │ ├── src/ │ │ ├── main/ │ │ │ ├── java/com/example/greapp/ │ │ │ │ ├── controller/ │ │ │ │ │ └── AppController.java │ │ │ │ ├── service/ │ │ │ │ │ └── AppService.java │ │ │ │ ├── model/ │ │ │ │ │ ├── Word.java │ │ │ │ │ ├── QuestionWrapper.java │ │ │ │ │ └── Response.java │ │ │ │ ├── dao/ │ │ │ │ │ └── AppDao.java │ │ │ │ └── GreAppApplication.java │ │ │ └── resources/ │ │ │ └── application.yml │ └── pom.xml │ ├── gre-quiz-service/ │ ├── src/ │ │ ├── main/ │ │ │ ├── java/com/example/grequiz/ │ │ │ │ ├── controller/ │ │ │ │ │ └── QuizController.java │ │ │ │ ├── service/ │ │ │ │ │ └── QuizService.java │ │ │ │ ├── feign/ │ │ │ │ │ └── QuizInterface.java │ │ │ │ ├── model/ │ │ │ │ │ ├── Quiz.java │ │ │ │ │ ├── QuizDto.java │ │ │ │ │ ├── QuestionWrapper.java │ │ │ │ │ └── Response.java │ │ │ │ ├── dao/ │ │ │ │ │ └── QuizDao.java │ │ │ │ └── GreQuizServiceApplication.java │ │ │ └── resources/ │ │ │ └── application.yml │ └── pom.xml │ ├── README.md └── .gitignore </code></pre>
 ⚙️ Setup Instructions
 🧩 Prerequisites
 Java 17+
