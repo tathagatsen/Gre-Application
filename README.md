@@ -62,40 +62,6 @@ Handles:
 
 ### 📘 GreApp Service (Port `8080`)
 
-GRE-Vocab-App/
-│
-├── gre-app/                        <-- Microservice 1: Word Management & Gemini Integration
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/example/greapp/
-│   │   │   │   ├── controller/              <-- WordController.java
-│   │   │   │   ├── service/                 <-- AppService.java
-│   │   │   │   ├── dao/                     <-- AppDao.java
-│   │   │   │   ├── model/                   <-- Word.java, QuestionWrapper.java, Response.java
-│   │   │   │   └── GreAppApplication.java   <-- Main class
-│   │   │   └── resources/
-│   │   │       ├── application.yml          <-- Gemini API key & config
-│   │   │       └── data.sql (optional)      <-- Initial DB seed
-│   └── pom.xml                              <-- Maven dependencies
-│
-├── gre-quiz-service/              <-- Microservice 2: Quiz Handling
-│   ├── src/
-│   │   ├── main/
-│   │   │   ├── java/com/example/grequiz/
-│   │   │   │   ├── controller/              <-- QuizController.java
-│   │   │   │   ├── service/                 <-- QuizService.java
-│   │   │   │   ├── feign/                   <-- QuizInterface.java (Feign client)
-│   │   │   │   ├── dao/                     <-- QuizDao.java
-│   │   │   │   ├── model/                   <-- Quiz.java, QuizDto.java, QuestionWrapper.java, Response.java
-│   │   │   │   └── GreQuizApplication.java  <-- Main class
-│   │   │   └── resources/
-│   │   │       └── application.yml          <-- Feign config, ports
-│   └── pom.xml                              <-- Maven dependencies
-│
-├── README.md
-├── .gitignore
-└── LICENSE (optional)
-
 ⚙️ Setup Instructions
 🧩 Prerequisites
 Java 17+
