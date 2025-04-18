@@ -1,4 +1,4 @@
-package com.project.GreApp;
+package com.project.GreApp.controller;
 
 import java.util.List;
 import java.util.Map;
@@ -13,7 +13,15 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.project.GreApp.model.QuestionWrapper;
+import com.project.GreApp.model.Response;
+import com.project.GreApp.model.Word;
+import com.project.GreApp.model.WordWrapper;
+import com.project.GreApp.service.AppService;
+
 import reactor.core.publisher.Mono;
+import org.springframework.web.bind.annotation.RequestParam;
+
 
 @RestController
 @RequestMapping("home")
@@ -53,7 +61,19 @@ public class AppController {
 		return appService.getWordbyName(word);
 	}
 	
-//	@PostMapping("create")
-//	public ResponseEntity<List<Word>>
-
+	@GetMapping("generate")
+	public ResponseEntity<List<Integer>> getQuestions(@RequestParam Integer numQ) {
+		return appService.getQuestions(numQ);
+	}
+	
+	@PostMapping("getQuestions")
+	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(@RequestBody List<Integer> questionIds){
+		return appService.getQuestionsFromId(questionIds);
+	}
+	
+	@PostMapping("getScore")
+	public ResponseEntity<Integer> getQuizScore(@RequestBody List<Response> responses){
+		return appService.getQuizScore(responses);
+	}
+	
 }

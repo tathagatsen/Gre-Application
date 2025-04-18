@@ -1,9 +1,11 @@
-package com.project.GreApp;
+package com.project.GreApp.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 
+import org.aspectj.weaver.patterns.TypePatternQuestions.Question;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -14,12 +16,19 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.GreApp.dao.AppDao;
+import com.project.GreApp.model.QuestionWrapper;
+import com.project.GreApp.model.Response;
+import com.project.GreApp.model.Word;
+import com.project.GreApp.model.WordWrapper;
+
 import reactor.core.publisher.Mono;
 @Service
 public class AppService {
 	
 	@Autowired
 	AppDao appDao;
+	
 	
 	@Value("${gemini.api.url}")
 	private String geminiApiUrl;
@@ -158,5 +167,42 @@ public class AppService {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
 	}
+
+	public ResponseEntity<List<Integer>> getQuestions(Integer numQ) {
+		List<Integer> questions=appDao.findRandomQuestionsById(numQ);
+		return new ResponseEntity<>(questions,HttpStatus.OK);
+	}
+
+	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(List<Integer> questionIds) {
+		List<QuestionWrapper> wrappers= new ArrayList<>();
+		List<Word> questions=new ArrayList<>();
+		
+		for(Integer id:questionIds) {
+			questions.add(appDao.findById(id).get());
+		}
+		for(Word w:questions) {
+			QuestionWrapper qw=new QuestionWrapper();
+			qw.setId(w.getId());
+			qw.setWord(w.getWord());
+			wrappers.add(qw);
+		}
+		
+		return new ResponseEntity<>(wrappers,HttpStatus.OK);
+	}
+
+	public ResponseEntity<Integer> getQuizScore(List<Response> responses) {
+		int right=0;
+		for(Response r:responses) {
+			Word word=appDao.findById(r.getId()).get();
+			if(r.getDefinition().equals(word.getDefinition())) {
+				right++;
+			}
+		}
+		return new ResponseEntity<>(right,HttpStatus.OK);
+	}
+	
+	
+
+
 	
 }

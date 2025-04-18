@@ -1,4 +1,4 @@
-package com.project.GreApp;
+package com.project.GreApp.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
