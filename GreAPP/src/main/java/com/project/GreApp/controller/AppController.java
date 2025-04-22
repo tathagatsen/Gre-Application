@@ -5,6 +5,7 @@ import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -61,19 +62,24 @@ public class AppController {
 		return appService.getWordbyName(word);
 	}
 	
-	@GetMapping("generate")
-	public ResponseEntity<List<Integer>> getQuestions(@RequestParam Integer numQ) {
+	@GetMapping("question/generate/{numQ}")
+	public ResponseEntity<List<Word>> getQuestions(@PathVariable Integer numQ) {
+		try {
 		return appService.getQuestions(numQ);
+		}catch (Exception e) {
+		    e.printStackTrace();
+		    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
-	
-	@PostMapping("getQuestions")
-	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(@RequestBody List<Integer> questionIds){
-		return appService.getQuestionsFromId(questionIds);
-	}
-	
-	@PostMapping("getScore")
-	public ResponseEntity<Integer> getQuizScore(@RequestBody List<Response> responses){
-		return appService.getQuizScore(responses);
-	}
+//	
+//	@PostMapping("getQuestions")
+//	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(@RequestBody List<Integer> questionIds){
+//		return appService.getQuestionsFromId(questionIds);
+//	}
+//	
+//	@PostMapping("getScore")
+//	public ResponseEntity<Integer> getQuizScore(@RequestBody List<Response> responses){
+//		return appService.getQuizScore(responses);
+//	}
 	
 }

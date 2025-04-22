@@ -1,4 +1,4 @@
-package com.project.GreQuizService.service;
+package com.project.GreQuizService.dao;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 

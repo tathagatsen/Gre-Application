@@ -140,6 +140,7 @@ public class AppService {
 	}
 
 	public ResponseEntity<List<Word>> getAllWords() {
+		
 		return new ResponseEntity<>(appDao.findAll(),HttpStatus.OK);
 	}
 
@@ -168,38 +169,40 @@ public class AppService {
 		}
 	}
 
-	public ResponseEntity<List<Integer>> getQuestions(Integer numQ) {
-		List<Integer> questions=appDao.findRandomQuestionsById(numQ);
+	public ResponseEntity<List<Word>> getQuestions(Integer numQ) {
+		System.out.println("5HALLLLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOO");
+		List<Word> questions=appDao.findRandomQuestionsById(numQ);
+		System.out.println("6HALLLLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOO");
 		return new ResponseEntity<>(questions,HttpStatus.OK);
 	}
-
-	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(List<Integer> questionIds) {
-		List<QuestionWrapper> wrappers= new ArrayList<>();
-		List<Word> questions=new ArrayList<>();
-		
-		for(Integer id:questionIds) {
-			questions.add(appDao.findById(id).get());
-		}
-		for(Word w:questions) {
-			QuestionWrapper qw=new QuestionWrapper();
-			qw.setId(w.getId());
-			qw.setWord(w.getWord());
-			wrappers.add(qw);
-		}
-		
-		return new ResponseEntity<>(wrappers,HttpStatus.OK);
-	}
-
-	public ResponseEntity<Integer> getQuizScore(List<Response> responses) {
-		int right=0;
-		for(Response r:responses) {
-			Word word=appDao.findById(r.getId()).get();
-			if(r.getDefinition().equals(word.getDefinition())) {
-				right++;
-			}
-		}
-		return new ResponseEntity<>(right,HttpStatus.OK);
-	}
+//
+//	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(List<Integer> questionIds) {
+//		List<QuestionWrapper> wrappers= new ArrayList<>();
+//		List<Word> questions=new ArrayList<>();
+//		
+//		for(Integer id:questionIds) {
+//			questions.add(appDao.findById(id).get());
+//		}
+//		for(Word w:questions) {
+//			QuestionWrapper qw=new QuestionWrapper();
+//			qw.setId(w.getId());
+//			qw.setWord(w.getWord());
+//			wrappers.add(qw);
+//		}
+//		
+//		return new ResponseEntity<>(wrappers,HttpStatus.OK);
+//	}
+//
+//	public ResponseEntity<Integer> getQuizScore(List<Response> responses) {
+//		int right=0;
+//		for(Response r:responses) {
+//			Word word=appDao.findById(r.getId()).get();
+//			if(r.getDefinition().equals(word.getDefinition())) {
+//				right++;
+//			}
+//		}
+//		return new ResponseEntity<>(right,HttpStatus.OK);
+//	}
 	
 	
 
