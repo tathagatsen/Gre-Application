@@ -1,4 +1,4 @@
-package com.project.GreQuestionService;
+package com.project.GreQuestionService.feign;
 
 import java.util.List;
 

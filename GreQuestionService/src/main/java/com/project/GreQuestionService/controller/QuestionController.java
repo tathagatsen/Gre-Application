@@ -26,18 +26,17 @@ public class QuestionController {
 	QuestionService questionService;
 	
 	@GetMapping("generate/{numQ}")
-	public ResponseEntity<List<Integer>> generateQuestions(@PathVariable Integer numQ) {
-		System.out.println("2 HALLLLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOO");
-		return questionService.generateQuestions(numQ);
+	public ResponseEntity<List<Integer>> generateQuestions(@PathVariable Integer numQ,@RequestParam Integer quiz_id) {
+		return questionService.generateQuestions(numQ,quiz_id);
 	}
 		
-//	@PostMapping("getQuestions")
-//	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(@RequestBody List<Integer> questionIds){
-//		return questionService.getQuestionsFromId(questionIds);
-//	}
-//	
-//	@PostMapping("getScore")
-//	public ResponseEntity<Integer> getQuizScore(@RequestBody List<Response> responses){
-//		return questionService.getQuizScore(responses);
-//	}
+	@PostMapping("getQuestions")
+	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(@RequestBody List<Integer> questionIds){
+		return questionService.getQuestionsFromId(questionIds);
+	}
+	
+	@PostMapping("getScore")
+	public ResponseEntity<Integer> getQuizScore(@RequestBody List<Response> responses){
+		return questionService.getQuizScore(responses);
+	}
 }

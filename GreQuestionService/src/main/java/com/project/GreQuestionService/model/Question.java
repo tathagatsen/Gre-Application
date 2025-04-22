@@ -15,7 +15,7 @@ public class Question {
 	private Integer id;
 	private Integer wordId;
 	private String word;
-//	private Integer quizId;
+	private Integer quizId;
     private String definition;
     private String example;
  
@@ -42,12 +42,12 @@ public class Question {
 	public void setWord(String word) {
 		this.word = word;
 	}
-//	public Integer getQuizId() {
-//		return quizId;
-//	}
-//	public void setQuizId(Integer quizId) {
-//		this.quizId = quizId;
-//	}
+	public Integer getQuizId() {
+		return quizId;
+	}
+	public void setQuizId(Integer quizId) {
+		this.quizId = quizId;
+	}
 	public String getDefinition() {
 		return definition;
 	}

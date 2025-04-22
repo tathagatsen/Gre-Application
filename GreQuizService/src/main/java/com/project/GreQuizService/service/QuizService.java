@@ -23,31 +23,21 @@ public class QuizService {
 	QuizInterface quizInterface;
 	
 	public ResponseEntity<String> createQuiz(String quizName, Integer numQ) {
-//		List<Integer> questions=quizInterface.getQuestions(numQ).getBody();
-//		Quiz quiz=new Quiz();
-//		quiz.setQuizName(quizName);
-//		quiz.setQueIds(questions);
-//		quizDao.save(quiz);
-//		return new ResponseEntity<>("success",HttpStatus.OK);
-		System.out.println("1");
-		ResponseEntity<List<Integer>> response = quizInterface.generateQuestions(numQ);
-	    System.out.println("9");
+		if(quizDao.findByQuizName(quizName)==null) {
+		Quiz quiz = new Quiz();
+		quiz.setQuizName(quizName);
+		quiz=quizDao.save(quiz);
+		ResponseEntity<List<Integer>> response = quizInterface.generateQuestions(numQ,quiz.getId());
 	    if (response == null || response.getBody().isEmpty()) {
 	        return new ResponseEntity<>("Unable to generate enough questions.", HttpStatus.BAD_REQUEST);
 	    }
-
 	    List<Integer> questionIds = response.getBody();
-
-	    
-	    Quiz quiz = new Quiz();
-	    quiz.setQuizName(quizName);
 	    quiz.setQueIds(questionIds);
-	    
-	    
 	    quizDao.save(quiz);
-	    System.out.println("10");
-	 
-	    return new ResponseEntity<>("Quiz created successfully.", HttpStatus.OK);
+	    return new ResponseEntity<>("Quiz created successfully.", HttpStatus.OK);}
+		else {
+			return new ResponseEntity<>("Duplcate Quiz Name",HttpStatus.CONFLICT);
+		}
 		}
 
 	public ResponseEntity<List<QuestionWrapper>> getQuizQuestions(Integer id) {
