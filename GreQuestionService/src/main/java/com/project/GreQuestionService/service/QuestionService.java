@@ -2,6 +2,7 @@ package com.project.GreQuestionService.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -14,6 +15,9 @@ import com.project.GreQuestionService.dao.QuestionDao;
 import com.project.GreQuestionService.model.QuestionWrapper;
 import com.project.GreQuestionService.model.Response;
 import com.project.GreQuestionService.model.Word;
+
+import reactor.core.publisher.Mono;
+
 import com.project.GreQuestionService.model.Question;
 
 @Service
@@ -25,17 +29,9 @@ public class QuestionService {
 	@Autowired 
 	QuestionInterface questionInterface;
 	
-	@Value("${gemini.api.url}")
-	private String geminiApiUrl;
-	@Value("${gemini.api.key}")
-	private String geminiApiKey;
-	
-	private final WebClient webClient;
-	
-	public AppService(WebClient.Builder webClient) {
-		super();
-		this.webClient = webClient.build();
-	}
+	@Autowired
+	GeminiService geminiService;
+
 
 	public ResponseEntity<List<Integer>> generateQuestions(Integer numQ,Integer quiz_id) {
 		try {
@@ -59,8 +55,7 @@ public class QuestionService {
 		        questionIds.add(saved.getId());
 
 		    }
-		    System.out.println("8HALLLLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOO");
-		    return new ResponseEntity<>(questionIds, HttpStatus.OK);
+		    		    return new ResponseEntity<>(questionIds, HttpStatus.OK);
 		} catch (Exception e) {
 		    e.printStackTrace(); // Log the error
 		    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
@@ -69,15 +64,15 @@ public class QuestionService {
 
 	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(List<Integer> questionIds) {
 		List<QuestionWrapper> wrappers= new ArrayList<>();
-		List<Question> questions=new ArrayList<>();
+		List<Question> questions=questionDao.findAllById(questionIds);
 		 
-		for(Integer id:questionIds) {
-			questions.addAll(questionDao.findByQuizId(id));
-		}
-		 
+//		for(Integer id:questionIds) {
+//			questions.addAll(questionDao.findByQuizId(id));
+//		}
+		 	
 		for(Question q:questions) {
 			QuestionWrapper qw=new QuestionWrapper();
-			qw.setId(q.getId());
+			qw.setId(q.getQuizId());
 			qw.setWord(q.getWord());
 			wrappers.add(qw);
 		}
@@ -89,11 +84,13 @@ public class QuestionService {
 		int right=0;
 		for(Response r:responses) {
 			Question q=questionDao.findById(r.getId()).get();
-			if(r.getDefinition().equals(q.getDefinition())) {
+			boolean isEmptyorNot=r.getDefinition().isEmpty();
+			System.out.println(isEmptyorNot);
+			if(geminiService.isDefinitionCorrect(q.getWord(), q.getDefinition(),r.getDefinition()) && !isEmptyorNot) {
 				right++;
 			}
 		}
-		return new ResponseEntity<>(right,HttpStatus.OK);
+		return new ResponseEntity<>(right,HttpStatus.OK);	
 	}
 
 

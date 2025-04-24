@@ -41,7 +41,7 @@ public class AppService {
 		super();
 		this.webClient = webClient.build();
 	}
-
+	
 	public ResponseEntity<String> addWordManually(Word word) {
 		appDao.save(word);
 		return new ResponseEntity<>("success",HttpStatus.CREATED);
