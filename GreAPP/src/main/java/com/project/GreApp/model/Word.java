@@ -15,6 +15,31 @@ public class Word {
 	private String word;
 	private String definition;
 	private String example;
+	@Column(columnDefinition = "TEXT")
+	private String wordForms;  
+
+	public String getWordForms() {
+	    return wordForms;
+	}
+
+	public void setWordForms(String wordForms) {
+	    this.wordForms = wordForms;
+	}
+
+	// Update the constructor if needed
+	public Word(Integer id, String word, String definition, String example, String wordForms) {
+	    super();
+	    this.id = id;
+	    this.word = word;
+	    this.definition = definition;
+	    this.example = example;
+	    this.wordForms = wordForms;
+	}
+
+	public Word() {
+	    super();
+	}
+
 	public Integer getId() {
 		return id;
 	}
@@ -39,15 +64,6 @@ public class Word {
 	public void setExample(String example) {
 		this.example = example;
 	}
-	public Word(Integer id, String word, String definition, String example) {
-		super();
-		this.id = id;
-		this.word = word;
-		this.definition = definition;
-		this.example = example;
-	}
-	public Word() {
-		super();
-	}
+	
 	
 }

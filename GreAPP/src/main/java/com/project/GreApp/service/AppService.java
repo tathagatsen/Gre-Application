@@ -205,7 +205,27 @@ private List<Map<String, String>> readWordsFromFile() throws IOException {
 	        }
 	    });
 	}
+	
+	public ResponseEntity<String> addWordForms(String word) {
+		if(appDao.existsByWord(word)) {
+			Word w=appDao.findByWord(word).get();
+			Map<String,List<String>> wordForms=appInterface.getWordsForms(word);
+			try {
+	            ObjectMapper objectMapper = new ObjectMapper();
+	            String wordFormsJson = objectMapper.writeValueAsString(wordForms);
+	            w.setWordForms(wordFormsJson);
+	        } catch (Exception e) {
+	            e.printStackTrace();
+	            w.setWordForms("{}"); // fallback
+	        }
+			appDao.save(w);
+			return new ResponseEntity<String>("Updated",HttpStatus.OK);
+		}else {
+			return new ResponseEntity<String>("word does not exist",HttpStatus.NOT_FOUND);
+		}
+	}
 
+	
 	public ResponseEntity<List<Word>> getAllWords() {
 		
 		return new ResponseEntity<>(appDao.findAll(),HttpStatus.OK);
@@ -271,6 +291,7 @@ private List<Map<String, String>> readWordsFromFile() throws IOException {
 //		return new ResponseEntity<>(right,HttpStatus.OK);
 //	}
 
+	
 	
 	
 	

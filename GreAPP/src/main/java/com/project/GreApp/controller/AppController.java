@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -45,6 +46,11 @@ public class AppController {
 	@PostMapping("add/file")
 	public ResponseEntity<String> addWordsFromFile(){
 		return appService.addWordsFromFile();
+	}
+	
+	@PutMapping("add/wordForms/{word}")
+	public ResponseEntity<String> addWordForms(@PathVariable String word){
+		return appService.addWordForms(word);
 	}
 	
 	@PostMapping("add/auto")
