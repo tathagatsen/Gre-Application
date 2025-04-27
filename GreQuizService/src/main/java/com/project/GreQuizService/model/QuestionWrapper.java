@@ -1,13 +1,20 @@
 package com.project.GreQuizService.model;
 
 public class QuestionWrapper {
-	private Integer id;
+	private Integer quizId;
+	private Integer queId;
 	private String word;
-	public Integer getId() {
-		return id;
+	public Integer getQuizId() {
+		return quizId;
 	}
-	public void setId(Integer id) {
-		this.id = id;
+	public void setQuizId(Integer quizId) {
+		this.quizId = quizId;
+	}
+	public Integer getQueId() {
+		return queId;
+	}
+	public void setQueId(Integer queId) {
+		this.queId = queId;
 	}
 	public String getWord() {
 		return word;
@@ -15,11 +22,11 @@ public class QuestionWrapper {
 	public void setWord(String word) {
 		this.word = word;
 	}
-	public QuestionWrapper(Integer id, String word) {
+	public QuestionWrapper(Integer quizId, Integer queId, String word) {
 		super();
-		this.id = id;
+		this.quizId = quizId;
+		this.queId = queId;
 		this.word = word;
 	}
-	public QuestionWrapper() {
-	}
+	
 }

@@ -72,7 +72,8 @@ public class QuestionService {
 		 	
 		for(Question q:questions) {
 			QuestionWrapper qw=new QuestionWrapper();
-			qw.setId(q.getQuizId());
+			qw.setQueId(q.getId());
+			qw.setQuizId(q.getQuizId());
 			qw.setWord(q.getWord());
 			wrappers.add(qw);
 		}
@@ -83,7 +84,7 @@ public class QuestionService {
 	public ResponseEntity<Integer> getQuizScore(List<Response> responses) {
 		int right=0;
 		for(Response r:responses) {
-			Question q=questionDao.findById(r.getId()).get();
+			Question q=questionDao.findById(r.getQueId()).get();
 			boolean isEmptyorNot=r.getDefinition().isEmpty();
 			System.out.println(isEmptyorNot);
 			if(geminiService.isDefinitionCorrect(q.getWord(), q.getDefinition(),r.getDefinition()) && !isEmptyorNot) {

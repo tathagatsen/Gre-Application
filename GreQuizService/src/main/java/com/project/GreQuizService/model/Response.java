@@ -1,22 +1,20 @@
 package com.project.GreQuizService.model;
 
 public class Response {
-	private Integer id;
+	private Integer quizId;
+	private Integer queId;
 	private String definition;
-	public Response(Integer id, String definition) {
-		super();
-		this.id = id;
-		this.definition = definition;
+	public Integer getQuizId() {
+		return quizId;
 	}
-	
-	public Response() {
+	public void setQuizId(Integer quizId) {
+		this.quizId = quizId;
 	}
-	
-	public Integer getId() {
-		return id;
+	public Integer getQueId() {
+		return queId;
 	}
-	public void setId(Integer id) {
-		this.id = id;
+	public void setQueId(Integer queId) {
+		this.queId = queId;
 	}
 	public String getDefinition() {
 		return definition;
@@ -24,6 +22,8 @@ public class Response {
 	public void setDefinition(String definition) {
 		this.definition = definition;
 	}
-	
-	
+	public Response() {
+		super();
+	}
+		
 }

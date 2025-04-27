@@ -1,9 +1,16 @@
 package com.project.GreApp.service;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.aspectj.weaver.patterns.TypePatternQuestions.Question;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,10 +23,12 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.project.GreApp.GreAppInterface;
 import com.project.GreApp.dao.AppDao;
 import com.project.GreApp.model.QuestionWrapper;
 import com.project.GreApp.model.Response;
 import com.project.GreApp.model.Word;
+import com.project.GreApp.model.WordFile;
 import com.project.GreApp.model.WordWrapper;
 
 import reactor.core.publisher.Mono;
@@ -28,6 +37,9 @@ public class AppService {
 	
 	@Autowired
 	AppDao appDao;
+	
+	@Autowired
+	GreAppInterface appInterface;
 	
 	
 	@Value("${gemini.api.url}")
@@ -43,11 +55,66 @@ public class AppService {
 	}
 	
 	public ResponseEntity<String> addWordManually(Word word) {
+		if(!appDao.existsByWord(word.getWord())) {
 		appDao.save(word);
-		return new ResponseEntity<>("success",HttpStatus.CREATED);
+		return new ResponseEntity<>("success",HttpStatus.CREATED);}
+		else {
+			return new ResponseEntity<>("Failed",HttpStatus.EXPECTATION_FAILED);
+		}
 	}
+	
+	public ResponseEntity<String> addWordsFromFile() {
+		List<Map<String, String>> words;
+		try {
+			words = readWordsFromFile();
+		
+		for(Map<String, String> w:words) {
+			if(!appDao.existsByWord(w.get("word"))) {
+			Word word=new Word();
+			word.setDefinition(w.get("definition"));
+			word.setWord(w.get("word"));
+			word.setExample(w.get("example"));
+			appDao.save(word);}
+			else {
+				System.out.println(w.get("word")+" already exists in the database.");
+			}
+		}
+		return new ResponseEntity<>("created",HttpStatus.OK);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return new ResponseEntity<>("Failed",HttpStatus.EXPECTATION_FAILED);
+	}
+	
+
+private List<Map<String, String>> readWordsFromFile() throws IOException {
+    List<Map<String, String>> wordList = new ArrayList<>();
+
+    Path path = Paths.get("C:\\Users\\Snehasish Sengupta\\git\\repository\\GreAPP\\src\\main\\resources\\show.txt"); // or give full path if needed
+    String content = Files.readString(path);
+
+    // Same regex pattern
+    Pattern pattern = Pattern.compile("\\d+\\.\\s+\\*\\*(.*?)\\*\\* – (.*?)\\s+_([^_]+)_", Pattern.DOTALL);
+    Matcher matcher = pattern.matcher(content);
+
+    while (matcher.find()) {
+        Map<String, String> wordMap = new HashMap<>();
+        wordMap.put("word", matcher.group(1).trim());
+        wordMap.put("definition", matcher.group(2).trim());
+        wordMap.put("example", matcher.group(3).trim());
+        wordList.add(wordMap);
+    }
+
+    return wordList;
+}
 
 	public ResponseEntity<Mono<String>> addWordAutomatically(String question) {
+//		prompt 
+//		{
+//			  "question": "Give me a JSON array containing an object for the word \"precarious\" with the fields: \"word\", and \"definitions\" (where \"definitions\" is a list of objects containing \"definition\" and \"example\" fields). Format the response inside triple backticks as JSON."
+//			}
+
 	    Map<String, Object> requestBody = Map.of(
 	        "contents", new Object[] {
 	            Map.of("parts", new Object[] {
@@ -203,6 +270,8 @@ public class AppService {
 //		}
 //		return new ResponseEntity<>(right,HttpStatus.OK);
 //	}
+
+	
 	
 	
 

@@ -17,6 +17,7 @@ import org.springframework.web.bind.annotation.RestController;
 import com.project.GreApp.model.QuestionWrapper;
 import com.project.GreApp.model.Response;
 import com.project.GreApp.model.Word;
+import com.project.GreApp.model.WordFile;
 import com.project.GreApp.model.WordWrapper;
 import com.project.GreApp.service.AppService;
 
@@ -39,6 +40,11 @@ public class AppController {
 	@PostMapping("add/multiple")
 	public ResponseEntity<List<String>> addMultipleWords(@RequestBody List<Word> words){
 		return appService.addMultipleWords(words);
+	}
+	
+	@PostMapping("add/file")
+	public ResponseEntity<String> addWordsFromFile(){
+		return appService.addWordsFromFile();
 	}
 	
 	@PostMapping("add/auto")
