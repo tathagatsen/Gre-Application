@@ -17,22 +17,21 @@ public class Word {
 	private String example;
 	@Column(columnDefinition = "TEXT")
 	private String wordForms;  
+	private String category;
+	
+	public String getCategory() {
+		return category;
+	}
+
+	public void setCategory(String category) {
+		this.category = category;
+	}
 
 	public String getWordForms() {
 	    return wordForms;
 	}
 
 	public void setWordForms(String wordForms) {
-	    this.wordForms = wordForms;
-	}
-
-	// Update the constructor if needed
-	public Word(Integer id, String word, String definition, String example, String wordForms) {
-	    super();
-	    this.id = id;
-	    this.word = word;
-	    this.definition = definition;
-	    this.example = example;
 	    this.wordForms = wordForms;
 	}
 

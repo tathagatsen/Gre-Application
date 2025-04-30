@@ -49,10 +49,19 @@ public class AppController {
 	}
 	
 	@PutMapping("add/wordForms/{word}")
-	public ResponseEntity<String> addWordForms(@PathVariable String word){
+	public String addWordForms(@PathVariable String word){
 		return appService.addWordForms(word);
 	}
 	
+	@PostMapping("add/wordCategory")
+	public ResponseEntity<String> addWordCategory() {
+		return appService.addWordCategory();
+	}
+	
+	@GetMapping("get/category/{category}")
+	public ResponseEntity<List<Word>> getWordsCategory(@PathVariable String category){
+		return appService.getWordsCategory(category);
+	}
 	@PostMapping("add/auto")
 	public ResponseEntity<Mono<String>> addWordAutomatically(@RequestBody Map<String, String> payload) {
 	    String question = payload.get("question");

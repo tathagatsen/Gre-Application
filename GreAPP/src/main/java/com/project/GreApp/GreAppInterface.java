@@ -13,5 +13,7 @@ public interface GreAppInterface {
 	@GetMapping("/get-word-forms/{word}")
 	public Map<String,List<String>> getWordsForms(@PathVariable String word);
 	
+	@GetMapping("/get-word-category/{word}")
+	public String getWordCategory(@PathVariable String word);
 	
 }

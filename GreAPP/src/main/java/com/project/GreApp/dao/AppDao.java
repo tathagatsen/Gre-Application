@@ -20,4 +20,7 @@ public interface AppDao extends JpaRepository<Word, Integer>{
 	@Query(value = "SELECT * FROM Word w ORDER BY RANDOM() LIMIT ?1", nativeQuery = true)
 	public List<Word> findRandomQuestionsById(Integer numQ);
 	
+	@Query(value="SELECT * FROM Word w where w.category = ?1 ",nativeQuery = true)
+	public List<Word> findByCategory(String category);
+	
 }

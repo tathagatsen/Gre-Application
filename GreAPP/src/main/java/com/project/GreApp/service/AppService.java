@@ -41,7 +41,6 @@ public class AppService {
 	@Autowired
 	GreAppInterface appInterface;
 	
-	
 	@Value("${gemini.api.url}")
 	private String geminiApiUrl;
 	@Value("${gemini.api.key}")
@@ -55,9 +54,11 @@ public class AppService {
 	}
 	
 	public ResponseEntity<String> addWordManually(Word word) {
-		if(!appDao.existsByWord(word.getWord())) {
-		appDao.save(word);
-		return new ResponseEntity<>("success",HttpStatus.CREATED);}
+		if(!appDao.existsByWord(word.getWord().toLowerCase())) {
+			word.setWord(word.getWord().toLowerCase());
+			appDao.save(word);
+		return new ResponseEntity<>("success",HttpStatus.CREATED);
+		}
 		else {
 			return new ResponseEntity<>("Failed",HttpStatus.EXPECTATION_FAILED);
 		}
@@ -69,12 +70,16 @@ public class AppService {
 			words = readWordsFromFile();
 		
 		for(Map<String, String> w:words) {
-			if(!appDao.existsByWord(w.get("word"))) {
+			if(!appDao.existsByWord(w.get("word").toLowerCase())) {
 			Word word=new Word();
 			word.setDefinition(w.get("definition"));
-			word.setWord(w.get("word"));
+			word.setWord(w.get("word").toLowerCase());
 			word.setExample(w.get("example"));
-			appDao.save(word);}
+			appDao.save(word);
+			String wordForm=addWordForms(w.get("word").toLowerCase());
+			word.setWordForms(wordForm);
+			appDao.save(word);
+			}
 			else {
 				System.out.println(w.get("word")+" already exists in the database.");
 			}
@@ -187,7 +192,7 @@ private List<Map<String, String>> readWordsFromFile() throws IOException {
 	            if (word == null || word.isEmpty()) {
 	                word = extractedJson.path("Word").asText();
 	            }
-	            w.setWord(word);
+	            w.setWord(word.toLowerCase());
 	            
 	            JsonNode definitions = extractedJson.path("definitions");
 	            if (!definitions.isArray() || definitions.size() == 0) {
@@ -200,28 +205,33 @@ private List<Map<String, String>> readWordsFromFile() throws IOException {
 
 	            return Mono.just(w);
 	        } catch (Exception e) {
-	            e.printStackTrace(); // good for debugging
+	            e.printStackTrace(); 
 	            return Mono.error(new RuntimeException("Failed to parse Gemini response: " + e.getMessage()));
 	        }
 	    });
 	}
 	
-	public ResponseEntity<String> addWordForms(String word) {
-		if(appDao.existsByWord(word)) {
-			Word w=appDao.findByWord(word).get();
-			Map<String,List<String>> wordForms=appInterface.getWordsForms(word);
+	public String addWordForms(String word) {
+		
+		if(appDao.existsByWord(word.toLowerCase())) {
+			String wordFormsJson;
+			Word w=appDao.findByWord(word.toLowerCase()).get();
+			Map<String,List<String>> wordForms=appInterface.getWordsForms(word.toLowerCase());
 			try {
 	            ObjectMapper objectMapper = new ObjectMapper();
-	            String wordFormsJson = objectMapper.writeValueAsString(wordForms);
+	            wordFormsJson = objectMapper.writeValueAsString(wordForms);
 	            w.setWordForms(wordFormsJson);
+	            return wordFormsJson;
 	        } catch (Exception e) {
 	            e.printStackTrace();
 	            w.setWordForms("{}"); // fallback
 	        }
 			appDao.save(w);
-			return new ResponseEntity<String>("Updated",HttpStatus.OK);
+//			return new ResponseEntity<String>("Updated",HttpStatus.OK);
+			return "success";
 		}else {
-			return new ResponseEntity<String>("word does not exist",HttpStatus.NOT_FOUND);
+//			return new ResponseEntity<String>("word does not exist",HttpStatus.NOT_FOUND);
+			return "word does not exist";
 		}
 	}
 
@@ -233,7 +243,8 @@ private List<Map<String, String>> readWordsFromFile() throws IOException {
 
 	public ResponseEntity<List<String>> addMultipleWords(List<Word> words) {
 		for(Word w:words) {
-			if (!appDao.existsByWord(w.getWord())) {
+			if (!appDao.existsByWord(w.getWord().toLowerCase())) {
+				w.setWord(w.getWord().toLowerCase());
 		        appDao.save(w);
 		    } 
 		}
@@ -250,7 +261,7 @@ private List<Map<String, String>> readWordsFromFile() throws IOException {
 
 	public ResponseEntity<Optional<Word>> getWordbyName(String word) {
 		try {
-			return new ResponseEntity<>(appDao.findByWord(word),HttpStatus.FOUND);
+			return new ResponseEntity<>(appDao.findByWord(word.toLowerCase()),HttpStatus.FOUND);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -262,40 +273,20 @@ private List<Map<String, String>> readWordsFromFile() throws IOException {
 		System.out.println("6HALLLLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOO");
 		return new ResponseEntity<>(questions,HttpStatus.OK);
 	}
-//
-//	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(List<Integer> questionIds) {
-//		List<QuestionWrapper> wrappers= new ArrayList<>();
-//		List<Word> questions=new ArrayList<>();
-//		
-//		for(Integer id:questionIds) {
-//			questions.add(appDao.findById(id).get());
-//		}
-//		for(Word w:questions) {
-//			QuestionWrapper qw=new QuestionWrapper();
-//			qw.setId(w.getId());
-//			qw.setWord(w.getWord());
-//			wrappers.add(qw);
-//		}
-//		
-//		return new ResponseEntity<>(wrappers,HttpStatus.OK);
-//	}
-//
-//	public ResponseEntity<Integer> getQuizScore(List<Response> responses) {
-//		int right=0;
-//		for(Response r:responses) {
-//			Word word=appDao.findById(r.getId()).get();
-//			if(r.getDefinition().equals(word.getDefinition())) {
-//				right++;
-//			}
-//		}
-//		return new ResponseEntity<>(right,HttpStatus.OK);
-//	}
 
-	
-	
-	
-	
+	public ResponseEntity<String> addWordCategory() {
+		List<Word> words=appDao.findAll();
+		for(Word w:words) {
+			String response=appInterface.getWordCategory(w.getWord());
+			w.setCategory(response);
+			appDao.save(w);
+		}
+		return new ResponseEntity<String>("Success",HttpStatus.OK);
+	}
 
-
+	public ResponseEntity<List<Word>> getWordsCategory(String category) {
+		List<Word> words=appDao.findByCategory(category);
+		return new ResponseEntity<List<Word>>(words,HttpStatus.OK);
+	}
 	
 }
