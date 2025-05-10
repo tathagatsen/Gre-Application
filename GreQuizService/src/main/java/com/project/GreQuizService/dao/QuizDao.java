@@ -7,5 +7,7 @@ import com.project.GreQuizService.model.Quiz;
 public interface QuizDao extends JpaRepository<Quiz, Integer>{
 	
 	Quiz findByQuizName(String quizName);
+
+	Quiz findByQuizNameAndUserId(String quizName, Integer userId);
 	
 }

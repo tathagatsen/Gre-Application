@@ -23,7 +23,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.project.GreApp.GreAppInterface;
+import com.project.GreApp.feign.GreAppInterface;
 import com.project.GreApp.dao.AppDao;
 import com.project.GreApp.model.QuestionWrapper;
 import com.project.GreApp.model.Response;
@@ -64,6 +64,16 @@ public class AppService {
 		}
 	}
 	
+	public ResponseEntity<List<String>> addMultipleWords(List<Word> words) {
+		for(Word w:words) {
+			if (!appDao.existsByWord(w.getWord().toLowerCase())) {
+				w.setWord(w.getWord().toLowerCase());
+		        appDao.save(w);
+		    } 
+		}
+		return new ResponseEntity<List<String>>(HttpStatus.CREATED);
+	}
+	
 	public ResponseEntity<String> addWordsFromFile() {
 		List<Map<String, String>> words;
 		try {
@@ -92,28 +102,6 @@ public class AppService {
 		return new ResponseEntity<>("Failed",HttpStatus.EXPECTATION_FAILED);
 	}
 	
-
-private List<Map<String, String>> readWordsFromFile() throws IOException {
-    List<Map<String, String>> wordList = new ArrayList<>();
-
-    Path path = Paths.get("C:\\Users\\Snehasish Sengupta\\git\\repository\\GreAPP\\src\\main\\resources\\show.txt"); // or give full path if needed
-    String content = Files.readString(path);
-
-    // Same regex pattern
-    Pattern pattern = Pattern.compile("\\d+\\.\\s+\\*\\*(.*?)\\*\\* – (.*?)\\s+_([^_]+)_", Pattern.DOTALL);
-    Matcher matcher = pattern.matcher(content);
-
-    while (matcher.find()) {
-        Map<String, String> wordMap = new HashMap<>();
-        wordMap.put("word", matcher.group(1).trim());
-        wordMap.put("definition", matcher.group(2).trim());
-        wordMap.put("example", matcher.group(3).trim());
-        wordList.add(wordMap);
-    }
-
-    return wordList;
-}
-
 	public ResponseEntity<Mono<String>> addWordAutomatically(String question) {
 //		prompt 
 //		{
@@ -147,6 +135,45 @@ private List<Map<String, String>> readWordsFromFile() throws IOException {
 
 	    return ResponseEntity.status(HttpStatus.CREATED).body(result);
 	}
+	
+	public ResponseEntity<String> addWordCategory() {
+		List<Word> words=appDao.findAll();
+		for(Word w:words) {
+			String response=appInterface.getWordCategory(w.getWord());
+			w.setCategory(response);
+			appDao.save(w);
+		}
+		return new ResponseEntity<String>("Success",HttpStatus.OK);
+	}
+
+	public ResponseEntity<List<Word>> getWordsCategory(String category) {
+		List<Word> words=appDao.findByCategory(category);
+		return new ResponseEntity<List<Word>>(words,HttpStatus.OK);
+	}
+	
+
+private List<Map<String, String>> readWordsFromFile() throws IOException {
+    List<Map<String, String>> wordList = new ArrayList<>();
+
+    Path path = Paths.get("C:\\Users\\Snehasish Sengupta\\git\\repository\\GreAPP\\src\\main\\resources\\show.txt"); // or give full path if needed
+    String content = Files.readString(path);
+
+    // Same regex pattern
+    Pattern pattern = Pattern.compile("\\d+\\.\\s+\\*\\*(.*?)\\*\\* – (.*?)\\s+_([^_]+)_", Pattern.DOTALL);
+    Matcher matcher = pattern.matcher(content);
+
+    while (matcher.find()) {
+        Map<String, String> wordMap = new HashMap<>();
+        wordMap.put("word", matcher.group(1).trim());
+        wordMap.put("definition", matcher.group(2).trim());
+        wordMap.put("example", matcher.group(3).trim());
+        wordList.add(wordMap);
+    }
+
+    return wordList;
+}
+
+
 
 	
 	public Mono<Word> handleGeminiResponse(Mono<String> responseMono) {
@@ -241,15 +268,7 @@ private List<Map<String, String>> readWordsFromFile() throws IOException {
 		return new ResponseEntity<>(appDao.findAll(),HttpStatus.OK);
 	}
 
-	public ResponseEntity<List<String>> addMultipleWords(List<Word> words) {
-		for(Word w:words) {
-			if (!appDao.existsByWord(w.getWord().toLowerCase())) {
-				w.setWord(w.getWord().toLowerCase());
-		        appDao.save(w);
-		    } 
-		}
-		return new ResponseEntity<List<String>>(HttpStatus.CREATED);
-	}
+	
 
 	public ResponseEntity<Optional<Word>> getWordbyId(Integer id) {
 		try {
@@ -268,25 +287,10 @@ private List<Map<String, String>> readWordsFromFile() throws IOException {
 	}
 
 	public ResponseEntity<List<Word>> getQuestions(Integer numQ) {
-		System.out.println("5HALLLLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOO");
 		List<Word> questions=appDao.findRandomQuestionsById(numQ);
-		System.out.println("6HALLLLLLLLLLLLLLLLLLLLLLLOOOOOOOOOOOOOOOOOOOOOOOOOO");
 		return new ResponseEntity<>(questions,HttpStatus.OK);
 	}
 
-	public ResponseEntity<String> addWordCategory() {
-		List<Word> words=appDao.findAll();
-		for(Word w:words) {
-			String response=appInterface.getWordCategory(w.getWord());
-			w.setCategory(response);
-			appDao.save(w);
-		}
-		return new ResponseEntity<String>("Success",HttpStatus.OK);
-	}
-
-	public ResponseEntity<List<Word>> getWordsCategory(String category) {
-		List<Word> words=appDao.findByCategory(category);
-		return new ResponseEntity<List<Word>>(words,HttpStatus.OK);
-	}
+	
 	
 }

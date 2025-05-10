@@ -43,6 +43,12 @@ public class AppController {
 		return appService.addMultipleWords(words);
 	}
 	
+	@PostMapping("add/auto")
+	public ResponseEntity<Mono<String>> addWordAutomatically(@RequestBody Map<String, String> payload) {
+	    String question = payload.get("question");
+	    return appService.addWordAutomatically(question);
+	}
+	
 	@PostMapping("add/file")
 	public ResponseEntity<String> addWordsFromFile(){
 		return appService.addWordsFromFile();
@@ -62,11 +68,7 @@ public class AppController {
 	public ResponseEntity<List<Word>> getWordsCategory(@PathVariable String category){
 		return appService.getWordsCategory(category);
 	}
-	@PostMapping("add/auto")
-	public ResponseEntity<Mono<String>> addWordAutomatically(@RequestBody Map<String, String> payload) {
-	    String question = payload.get("question");
-	    return appService.addWordAutomatically(question);
-	}
+	
 	
 	@GetMapping("get/allWords")
 	public ResponseEntity<List<Word>> getAllWords(){
@@ -92,15 +94,6 @@ public class AppController {
 		    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-//	
-//	@PostMapping("getQuestions")
-//	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(@RequestBody List<Integer> questionIds){
-//		return appService.getQuestionsFromId(questionIds);
-//	}
-//	
-//	@PostMapping("getScore")
-//	public ResponseEntity<Integer> getQuizScore(@RequestBody List<Response> responses){
-//		return appService.getQuizScore(responses);
-//	}
+
 	
 }

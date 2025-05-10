@@ -25,8 +25,8 @@ public class QuizController {
 	QuizService quizService;
 	
 	@PostMapping("create")
-	public ResponseEntity<String> createQuiz(@RequestBody QuizDto quizDto){
-		return quizService.createQuiz(quizDto.getQuizName(),quizDto.getNumQ());
+	public ResponseEntity<List<Integer>> createQuiz(@RequestBody QuizDto quizDto){
+		return quizService.createQuiz(quizDto.getQuizName(),quizDto.getNumQ(),quizDto.getUserId());
 	}
 	
 	@GetMapping("get/{id}")

@@ -1,10 +1,13 @@
-package com.project.GreQuizService.model;
+package com.project.GreUserService.model;
 
 public class QuizDto {
 	private Integer userId;
 	private String quizName;
 	private Integer numQ;
 	
+	
+	public QuizDto() {
+	}
 	public Integer getUserId() {
 		return userId;
 	}
@@ -12,10 +15,6 @@ public class QuizDto {
 	public void setUserId(Integer userId) {
 		this.userId = userId;
 	}
-
-	public QuizDto() {
-	}
-
 	public Integer getNumQ() {
 		return numQ;
 	}
@@ -28,5 +27,4 @@ public class QuizDto {
 	public void setQuizName(String quizName) {
 		this.quizName = quizName;
 	}
-
 }

@@ -22,22 +22,26 @@ public class QuizService {
 	@Autowired
 	QuizInterface quizInterface;
 	
-	public ResponseEntity<String> createQuiz(String quizName, Integer numQ) {
-		if(quizDao.findByQuizName(quizName)==null) {
-		Quiz quiz = new Quiz();
-		quiz.setQuizName(quizName);
-		quiz=quizDao.save(quiz);
-		ResponseEntity<List<Integer>> response = quizInterface.generateQuestions(numQ,quiz.getId());
-	    if (response == null || response.getBody().isEmpty()) {
-	        return new ResponseEntity<>("Unable to generate enough questions.", HttpStatus.BAD_REQUEST);
-	    }
-	    List<Integer> questionIds = response.getBody();
-	    quiz.setQueIds(questionIds);
-	    quizDao.save(quiz);
-	    return new ResponseEntity<>("Quiz created successfully.", HttpStatus.OK);}
-		else {
-			return new ResponseEntity<>("Duplcate Quiz Name",HttpStatus.CONFLICT);
-		}
+	public ResponseEntity<List<Integer>> createQuiz(String quizName, Integer numQ, Integer userId) {
+
+		  if (quizDao.findByQuizNameAndUserId(quizName,userId) != null) {
+		        return new ResponseEntity<>(HttpStatus.CONFLICT); // Duplicate quiz name
+		    }
+
+		    Quiz quiz = new Quiz();
+		    quiz.setQuizName(quizName);
+		    quiz.setUserId(userId);
+		    quiz = quizDao.save(quiz);
+
+		    ResponseEntity<List<Integer>> response = quizInterface.generateQuestions(numQ, quiz.getId());
+		    if (response == null || response.getBody() == null || response.getBody().isEmpty()) {
+		        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+		    }
+
+		    quiz.setQueIds(response.getBody());
+		    quizDao.save(quiz);
+
+		    return new ResponseEntity<>(List.of(quiz.getId()), HttpStatus.OK);
 		}
 
 	public ResponseEntity<List<QuestionWrapper>> getQuizQuestions(Integer id) {

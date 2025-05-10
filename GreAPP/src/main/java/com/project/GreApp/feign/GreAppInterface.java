@@ -1,4 +1,4 @@
-package com.project.GreApp;
+package com.project.GreApp.feign;
 
 import java.util.List;
 import java.util.Map;
