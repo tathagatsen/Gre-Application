@@ -11,13 +11,18 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
 import com.project.GreUserService.dao.UserDao;
-import com.project.GreUserService.feign.UserInterface;
+import com.project.GreUserService.feign.UserQuizInterface;
 import com.project.GreUserService.model.AppUser;
 import com.project.GreUserService.model.QuizDto;
 import com.project.GreUserService.model.AppUser;
 import com.project.GreUserService.model.UserDto;
+import com.project.GreUserService.model.UserQuestions;
+import com.project.GreUserService.model.UserQuiz;
+import com.project.GreUserService.model.UserQuizResponse;
+import com.project.GreUserService.model.Response;
 
 import feign.FeignException;
+
 
 @Service
 public class UserService {
@@ -26,8 +31,11 @@ public class UserService {
 	UserDao userDao;
 	
 	@Autowired
-	UserInterface userInterface;
+	UserQuizInterface userQuizInterface;
 	
+//	@Autowired
+//	UserWordInterface userWordInterface;
+			
 	public ResponseEntity<String> createUser(UserDto userDto) {
 //		if(!userDao.existsByUserId(userDto.getId())) {
 			AppUser user=new AppUser();
@@ -45,7 +53,7 @@ public class UserService {
 	public ResponseEntity<String> createUserQuiz(QuizDto quizDto) {
 		try
 		{
-			ResponseEntity<List<Integer>> quizResponse=userInterface.createQuiz(quizDto);
+			ResponseEntity<List<Integer>> quizResponse=userQuizInterface.createQuiz(quizDto);
 		if (quizResponse.getBody()!=null) {
 			AppUser u=userDao.findById(quizDto.getUserId()).get();
 			u.setQuizIds(quizResponse.getBody());
@@ -60,6 +68,16 @@ public class UserService {
 	    } catch (Exception e) {
 	        return new ResponseEntity<>("An error occurred while creating quiz", HttpStatus.INTERNAL_SERVER_ERROR);
 	    }
+	}
+
+	public ResponseEntity<List<UserQuestions>> getQuizQuestions(UserQuiz userQuiz) {
+		ResponseEntity<List<UserQuestions>> quizQuestions=userQuizInterface.getQuizQuestions(userQuiz.getUserId(),userQuiz.getQuizId());
+		return quizQuestions;
+	}
+
+	public ResponseEntity<Integer> getUserQuizScore(Integer userId,List<Response> responses) {
+		ResponseEntity<Integer> score=userQuizInterface.submitQuiz(responses);
+		return score;
 	}
 	
 	

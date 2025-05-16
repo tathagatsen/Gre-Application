@@ -1,5 +1,6 @@
 package com.project.GreQuizService.service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import com.project.GreQuizService.feign.QuizInterface;
 import com.project.GreQuizService.model.QuestionWrapper;
 import com.project.GreQuizService.model.Quiz;
 import com.project.GreQuizService.model.Response;
+import com.project.GreQuizService.model.UserQuestions;
 
 @Service
 public class QuizService {
@@ -44,14 +46,23 @@ public class QuizService {
 		    return new ResponseEntity<>(List.of(quiz.getId()), HttpStatus.OK);
 		}
 
-	public ResponseEntity<List<QuestionWrapper>> getQuizQuestions(Integer id) {
-		Quiz quiz=quizDao.findById(id).get();
+	public ResponseEntity<List<UserQuestions>> getQuizQuestions(Integer userId,Integer quizId) {
+		Quiz quiz=quizDao.findById(quizId).get();
 		List<Integer> questionIds=quiz.getQueIds();
 		ResponseEntity<List<QuestionWrapper>> questions=quizInterface.getQuestionsFromId(questionIds);
-		return questions;
+		List<UserQuestions> userQuestions=new ArrayList<UserQuestions>();
+		for(QuestionWrapper q:questions.getBody()) {
+			UserQuestions uq=new UserQuestions();
+			uq.setUserId(userId);
+			uq.setQueId(q.getQueId());
+			uq.setQuizId(q.getQuizId());
+			uq.setWord(q.getWord());
+			userQuestions.add(uq);
+		}
+		return new ResponseEntity<>(userQuestions,HttpStatus.OK);
 	}
 
-	public ResponseEntity<Integer> submitQuiz(Integer id, List<Response> responses) {
+	public ResponseEntity<Integer> submitQuiz(List<Response> responses) {
 		ResponseEntity<Integer> score=quizInterface.getQuizScore(responses);
 		return score;
 	}

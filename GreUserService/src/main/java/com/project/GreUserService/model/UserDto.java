@@ -1,4 +1,4 @@
-package com.project.GreUserService.model;
+	package com.project.GreUserService.model;
 
 public class UserDto {
 	
