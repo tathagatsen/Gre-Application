@@ -21,10 +21,21 @@ public class AppUser {
 	@ElementCollection
 	private List<Integer> quizIds;
 	
+	@ElementCollection
+	private List<Integer> wordIds;
+	
 	public AppUser() {
 		super();
 	}
-	
+		
+	public List<Integer> getWordIds() {
+		return wordIds;
+	}
+
+	public void setWordIds(List<Integer> wordIds) {
+		this.wordIds = wordIds;
+	}
+
 	public List<Integer> getQuizIds() {
 		return quizIds;
 	}

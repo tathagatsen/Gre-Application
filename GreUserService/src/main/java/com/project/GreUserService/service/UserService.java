@@ -2,6 +2,7 @@ package com.project.GreUserService.service;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.project.GreUserService.dao.UserDao;
 import com.project.GreUserService.feign.UserQuizInterface;
+import com.project.GreUserService.feign.UserWordInterface;
 import com.project.GreUserService.model.AppUser;
 import com.project.GreUserService.model.QuizDto;
 import com.project.GreUserService.model.AppUser;
@@ -19,6 +21,9 @@ import com.project.GreUserService.model.UserDto;
 import com.project.GreUserService.model.UserQuestions;
 import com.project.GreUserService.model.UserQuiz;
 import com.project.GreUserService.model.UserQuizResponse;
+import com.project.GreUserService.model.Word;
+import com.project.GreUserService.model.WordDto;
+
 import com.project.GreUserService.model.Response;
 
 import feign.FeignException;
@@ -33,8 +38,8 @@ public class UserService {
 	@Autowired
 	UserQuizInterface userQuizInterface;
 	
-//	@Autowired
-//	UserWordInterface userWordInterface;
+	@Autowired
+	UserWordInterface userWordInterface;
 			
 	public ResponseEntity<String> createUser(UserDto userDto) {
 //		if(!userDao.existsByUserId(userDto.getId())) {
@@ -79,9 +84,97 @@ public class UserService {
 		ResponseEntity<Integer> score=userQuizInterface.submitQuiz(responses);
 		return score;
 	}
-	
-	
-	
-	
+
+	public ResponseEntity<String> addUserWordManually(Integer userId, WordDto wordDto) {
+		ResponseEntity<Integer> wordId=userWordInterface.addWordManually(userId,wordDto);
+		List<Integer> wordIds=new ArrayList<Integer>();
+		AppUser user=userDao.findById(userId).get();
+		wordIds.addAll(user.getWordIds());
+		user.setWordIds(wordIds);
+		wordIds.add(wordId.getBody());
+		userDao.save(user);
+		return new ResponseEntity<>("Word added",HttpStatus.CREATED);
+	}
+
+	public ResponseEntity<String> addUserMultipleWords(Integer userId, List<WordDto> wordDto) {
+		ResponseEntity<List<Integer>> wordIds=userWordInterface.addMultipleWords(userId,wordDto);
+		Optional<AppUser> optionalUser = userDao.findById(userId);
+		AppUser user = optionalUser.get();
+		List<Integer> updatedWordIds=new ArrayList<Integer>();
+		if (user.getWordIds() != null) {
+	        updatedWordIds.addAll(user.getWordIds());
+	    }
+		updatedWordIds.addAll(wordIds.getBody());
+		user.setWordIds(updatedWordIds);
+		userDao.save(user);
+		return new ResponseEntity<>("words added",HttpStatus.CREATED);
+	}
+
+	public ResponseEntity<String> addUserWordAuto(Integer userId, Map<String, String> payload) {
+		ResponseEntity<Integer> wordId=userWordInterface.addWordAutomatically(userId,payload);
+		List<Integer> wordIds=new ArrayList<Integer>();
+		AppUser user=userDao.findById(userId).get();
+		wordIds.addAll(user.getWordIds());
+		user.setWordIds(wordIds);
+		wordIds.add(wordId.getBody());
+		userDao.save(user);
+		return new ResponseEntity<>("words added",HttpStatus.CREATED);
+	}
+
+	public ResponseEntity<String> addUserWordsFromFile(Integer userId) {
+		String path="C:\\Users\\Snehasish Sengupta\\git\\repository\\GreUserService\\src\\main\\resources\\show.txt";
+		ResponseEntity<List<Integer>> wordIds=userWordInterface.addWordsFromFile(userId,path);
+		Optional<AppUser> optionalUser = userDao.findById(userId);
+		AppUser user = optionalUser.get();
+		List<Integer> updatedWordIds=new ArrayList<Integer>();
+		if (user.getWordIds() != null) {
+	        updatedWordIds.addAll(user.getWordIds());
+	    }
+		updatedWordIds.addAll(wordIds.getBody());
+		user.setWordIds(updatedWordIds);
+		userDao.save(user);
+		return new ResponseEntity<String>("words added from file",HttpStatus.CREATED);
+	}
+
+	public ResponseEntity<List<Word>> getAllUserWords(Integer userId) {
+		ResponseEntity<List<Word>> words=userWordInterface.getAllWords(userId);
+		List<Word> wordlist=new ArrayList<Word>();
+		for(Word w:words.getBody()) {
+			Word nw=new Word();
+			nw.setUserId(userId);
+			nw.setWord(w.getWord());
+			nw.setId(w.getId());
+			nw.setDefinition(w.getDefinition());
+			nw.setExample(w.getExample());
+			wordlist.add(nw);
+		}
+		return new ResponseEntity<List<Word>>(wordlist,HttpStatus.OK);
+	}
+
+	public ResponseEntity<Optional<Word>> getUserWordById(Integer userId,Integer wordId) {
+		ResponseEntity<Optional<Word>> wordResponse=userWordInterface.getWordbyId(userId, wordId);
+		Optional<Word> w=wordResponse.getBody();
+		Word word=w.get();
+		Word nw=new Word();
+		nw.setUserId(userId);
+		nw.setWord(word.getWord());
+		nw.setId(word.getId());
+		nw.setDefinition(word.getDefinition());
+		nw.setExample(word.getExample());
+		return new ResponseEntity<Optional<Word>>(Optional.of(nw),HttpStatus.OK);
+	}
+
+	public ResponseEntity<Optional<Word>> getUserWordByName(Integer userId, String word) {
+		ResponseEntity<Optional<Word>> wordResponse=userWordInterface.getWordbyName(userId, word.toLowerCase());
+		Optional<Word> w=wordResponse.getBody();
+		Word optionalW=w.get();
+		Word nw=new Word();
+		nw.setUserId(userId);
+		nw.setWord(optionalW.getWord());
+		nw.setId(optionalW.getId());
+		nw.setDefinition(optionalW.getDefinition());
+		nw.setExample(optionalW.getExample());
+		return new ResponseEntity<Optional<Word>>(Optional.of(nw),HttpStatus.OK);
+	}
 	
 }

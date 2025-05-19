@@ -16,4 +16,5 @@ public interface GreAppInterface {
 	@GetMapping("/get-word-category/{word}")
 	public String getWordCategory(@PathVariable String word);
 	
+	
 }
