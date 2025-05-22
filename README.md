@@ -30,9 +30,8 @@ Each service is a standalone Spring Boot application that can be run independent
 
 ### Clone the Repository
 
-```bash
 git clone https://github.com/tathagatsen/Gre-Application.git
-cd Gre-Application
+cd Gre-Application 
 
 Running the Services
 Each service (GreApp, GreQuestionService, GreQuizService) can be run individually:
