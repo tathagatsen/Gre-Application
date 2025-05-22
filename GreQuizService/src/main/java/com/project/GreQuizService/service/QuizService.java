@@ -35,7 +35,7 @@ public class QuizService {
 		    quiz.setUserId(userId);
 		    quiz = quizDao.save(quiz);
 
-		    ResponseEntity<List<Integer>> response = quizInterface.generateQuestions(numQ, quiz.getId());
+		    ResponseEntity<List<Integer>> response = quizInterface.generateQuestions(numQ, quiz.getId(),userId);
 		    if (response == null || response.getBody() == null || response.getBody().isEmpty()) {
 		        return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		    }

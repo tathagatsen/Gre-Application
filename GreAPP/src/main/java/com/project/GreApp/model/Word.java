@@ -5,13 +5,19 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.Table;
+import jakarta.persistence.UniqueConstraint;
 
 @Entity
+@Table(
+		name="word",
+		uniqueConstraints = @UniqueConstraint(columnNames = {"userId","word"})
+		)
 public class Word {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer id;
-	@Column(unique = true)
+//	@Column(unique = true)
 	private String word;
 	private String definition;
 	private String example;

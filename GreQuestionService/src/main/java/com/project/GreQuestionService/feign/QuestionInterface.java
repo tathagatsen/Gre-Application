@@ -18,7 +18,7 @@ import com.project.GreQuestionService.model.Word;
 public interface QuestionInterface {
 	
 	@GetMapping("home/question/generate/{numQ}")
-	public ResponseEntity<List<Word>> getQuestions(@PathVariable Integer numQ);
+	public ResponseEntity<List<Word>> getQuestions(@PathVariable Integer numQ,@RequestParam Integer userId);
 	
 	@PostMapping("home/getQuestions")
 	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(@RequestBody List<Integer> questionIds);

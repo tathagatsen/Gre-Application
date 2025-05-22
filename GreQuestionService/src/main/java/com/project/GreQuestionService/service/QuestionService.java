@@ -33,10 +33,10 @@ public class QuestionService {
 	GeminiService geminiService;
 
 
-	public ResponseEntity<List<Integer>> generateQuestions(Integer numQ,Integer quiz_id) {
+	public ResponseEntity<List<Integer>> generateQuestions(Integer numQ,Integer quiz_id,Integer userId) {
 		try {
 			System.out.println("Calling GreApp to fetch words...");
-		    List<Word> words = questionInterface.getQuestions(numQ).getBody();
+		    List<Word> words = questionInterface.getQuestions(numQ,userId).getBody();
 		    
 		    System.out.println("GreApp response: " + words);
 		    if (words == null || words.isEmpty()) {

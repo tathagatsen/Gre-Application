@@ -26,8 +26,8 @@ public class QuestionController {
 	QuestionService questionService;
 	
 	@GetMapping("generate/{numQ}")
-	public ResponseEntity<List<Integer>> generateQuestions(@PathVariable Integer numQ,@RequestParam Integer quiz_id) {
-		return questionService.generateQuestions(numQ,quiz_id);
+	public ResponseEntity<List<Integer>> generateQuestions(@PathVariable Integer numQ,@RequestParam Integer quiz_id,@RequestParam Integer userId) {
+		return questionService.generateQuestions(numQ,quiz_id,userId);
 	}
 		
 	@PostMapping("getQuestions")

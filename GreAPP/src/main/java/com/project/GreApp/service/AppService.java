@@ -20,6 +20,7 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.reactive.function.client.WebClient;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -55,9 +56,10 @@ public class AppService {
 	}
 	
 	public ResponseEntity<Integer> addWordManually(Integer userId,WordDto wordDto) {
-		if(!appDao.existsByWord(wordDto.getWord().toLowerCase())) {
+		String wordStr=wordDto.getWord().toLowerCase();
+		if(!appDao.existsByWordAndUserId(wordStr,userId)) {
 			Word word=new Word();
-			word.setWord(wordDto.getWord().toLowerCase());
+			word.setWord(wordStr);
 			word.setDefinition(wordDto.getDefinition());
 			word.setExample(wordDto.getExample());
 			word.setUserId(userId);
@@ -73,9 +75,10 @@ public class AppService {
 	public ResponseEntity<List<Integer>> addMultipleWords(Integer userId,List<WordDto> wordDto) {
 		List<Integer> wordIds=new ArrayList<Integer>();
 		for(WordDto w:wordDto) {
-			if (!appDao.existsByWord(w.getWord().toLowerCase())) {
+			String wordStr=w.getWord().toLowerCase();
+			if (!appDao.existsByWordAndUserId(wordStr,userId)) {
 				Word word=new Word();
-				word.setWord(w.getWord().toLowerCase());
+				word.setWord(wordStr);
 				word.setDefinition(w.getDefinition());
 				word.setExample(w.getExample());
 				word.setUserId(userId);
@@ -93,10 +96,11 @@ public class AppService {
 			words = readWordsFromFile(path);
 			
 			for(Map<String, String> w:words) {
-				if(!appDao.existsByWord(w.get("word").toLowerCase())) {
+				String wordStr=w.get("word").toLowerCase();
+				if (!appDao.existsByWordAndUserId(wordStr,userId)) {
 					Word word=new Word();
 					word.setDefinition(w.get("definition"));
-					word.setWord(w.get("word").toLowerCase());
+					word.setWord(wordStr);
 					word.setExample(w.get("example"));
 					word.setUserId(userId);
 					appDao.save(word);
@@ -135,7 +139,6 @@ public class AppService {
 	        wordMap.put("example", matcher.group(3).trim());
 	        wordList.add(wordMap);
 	    }
-
 	    return wordList;
 	}
 	
@@ -235,25 +238,32 @@ public class AppService {
 	        throw new RuntimeException("Expected JSON array but got something else or empty array");
 	    }
 
-	    Word w = new Word();
-	    w.setUserId(userId);
+	    
 
 	    String word = extractedJson.path("word").asText();
 	    if (word == null || word.isEmpty()) {
 	        word = extractedJson.path("Word").asText();
 	    }
-	    w.setWord(word.toLowerCase());
+	    String wordStr=word.toLowerCase();
+	    if(!appDao.existsByWordAndUserId(wordStr,userId)) {
+	    	Word w = new Word();
+		    w.setUserId(userId);
+		    w.setWord(wordStr);
 
-	    JsonNode definitions = extractedJson.path("definitions");
-	    if (!definitions.isArray() || definitions.size() == 0) {
-	        throw new RuntimeException("No definitions found");
-	    }
-
-	    JsonNode firstDef = definitions.get(0);
-	    w.setDefinition(firstDef.path("definition").asText());
-	    w.setExample(firstDef.path("example").asText());
-
-	    return w;
+		    JsonNode definitions = extractedJson.path("definitions");
+		    if (!definitions.isArray() || definitions.size() == 0) {
+		        throw new RuntimeException("No definitions found");
+		    }
+	
+		    JsonNode firstDef = definitions.get(0);
+		    w.setDefinition(firstDef.path("definition").asText());
+		    w.setExample(firstDef.path("example").asText());
+		    
+		    return w;
+		}
+		else {
+			return null;
+		}
 	}
 //	public Mono<Word> handleGeminiResponse(Integer userId,Mono<String> responseMono) {
 //	    return responseMono.flatMap(response -> {
@@ -395,8 +405,8 @@ public class AppService {
 		}
 	}
 
-	public ResponseEntity<List<Word>> getQuestions(Integer numQ) {
-		List<Word> questions=appDao.findRandomQuestionsById(numQ);
+	public ResponseEntity<List<Word>> getQuestions(Integer numQ,Integer userId) {
+		List<Word> questions=appDao.findRandomQuestionsByIdAndUserId(userId,numQ);
 		return new ResponseEntity<>(questions,HttpStatus.OK);
 	}
 	

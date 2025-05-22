@@ -26,6 +26,7 @@ def get_word_frequency(word):
 		return "rare"
 	elif val<3:
 		return "very rare"
+
 		
 
 if __name__ == '__main__':

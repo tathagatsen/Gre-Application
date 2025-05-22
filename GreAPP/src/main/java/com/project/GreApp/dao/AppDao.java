@@ -31,5 +31,11 @@ public interface AppDao extends JpaRepository<Word, Integer>{
 
 	@Query(value = "SELECT * FROM Word w WHERE w.user_id=?1 AND w.word=?2",nativeQuery = true)
 	public Optional<Word> findByWordAndUserId(Integer userId, String word);
+
+//	@Query(value="SELECT * FROM Word w where ")
+	public boolean existsByWordAndUserId(String word,Integer userId);
+	
+	@Query(value="SELECT * FROM Word w where w.user_id=?1 ORDER BY RANDOM() LIMIT ?2",nativeQuery = true)
+	public List<Word> findRandomQuestionsByIdAndUserId(Integer userId,Integer numQ);
 	
 }

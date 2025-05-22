@@ -89,13 +89,8 @@ public class AppController {
 	}
 	
 	@GetMapping("question/generate/{numQ}")
-	public ResponseEntity<List<Word>> getQuestions(@PathVariable Integer numQ) {
-		try {
-		return appService.getQuestions(numQ);
-		}catch (Exception e) {
-		    e.printStackTrace();
-		    return new ResponseEntity<>(HttpStatus.INTERNAL_SERVER_ERROR);
-		}
+	public ResponseEntity<List<Word>> getQuestions(@PathVariable Integer numQ,@RequestParam Integer userId) {
+		return appService.getQuestions(numQ,userId);
 	}
 
 	

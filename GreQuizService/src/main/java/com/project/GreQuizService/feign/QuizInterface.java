@@ -17,7 +17,7 @@ import com.project.GreQuizService.model.QuestionWrapper;
 public interface QuizInterface {
 
 	@GetMapping("question/generate/{numQ}")
-	public ResponseEntity<List<Integer>> generateQuestions(@PathVariable Integer numQ,@RequestParam Integer quiz_id);
+	public ResponseEntity<List<Integer>> generateQuestions(@PathVariable Integer numQ,@RequestParam Integer quiz_id,@RequestParam Integer userId);
 	
 	@PostMapping("question/getQuestions")
 	public ResponseEntity<List<QuestionWrapper>> getQuestionsFromId(@RequestBody List<Integer> questionIds);
